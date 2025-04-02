@@ -1,6 +1,7 @@
 import random
-from flask import Flask, render_template
+from flask import Flask, render_template, abort
 from faker import Faker
+from functools import lru_cache
 
 fake = Faker()
 
@@ -32,7 +33,9 @@ def generate_post(i):
         'comments': generate_comments()
     }
 
-posts_list = sorted([generate_post(i) for i in range(5)], key=lambda p: p['date'], reverse=True)
+@lru_cache
+def posts_list():
+    return sorted([generate_post(i) for i in range(5)], key=lambda p: p['date'], reverse=True)
 
 @app.route('/')
 def index():
@@ -40,11 +43,15 @@ def index():
 
 @app.route('/posts')
 def posts():
-    return render_template('posts.html', title='Посты', posts=posts_list)
+    return render_template('posts.html', title='Посты', posts=posts_list())
 
 @app.route('/posts/<int:index>')
 def post(index):
-    p = posts_list[index]
+    posts = posts_list()
+    if (index >= len(posts) or index < 0):
+        abort(404)
+    p = posts[index]
+    print(p)
     return render_template('post.html', title=p['title'], post=p)
 
 @app.route('/about')
