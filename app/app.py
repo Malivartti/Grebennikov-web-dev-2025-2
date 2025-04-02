@@ -2,7 +2,7 @@ import random
 from flask import Flask, render_template, abort, make_response, request
 from faker import Faker
 from functools import lru_cache
-from .lib.validate import validate_phone
+from lib.validate import validate_phone
 
 fake = Faker()
 
