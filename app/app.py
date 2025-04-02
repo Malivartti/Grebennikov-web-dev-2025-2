@@ -1,7 +1,8 @@
 import random
-from flask import Flask, render_template, abort
+from flask import Flask, render_template, abort, make_response, request
 from faker import Faker
 from functools import lru_cache
+from .lib.validate import validate_phone
 
 fake = Faker()
 
@@ -57,3 +58,41 @@ def post(index):
 @app.route('/about')
 def about():
     return render_template('about.html', title='Об авторе')
+
+@app.route('/args')
+def args():
+    return render_template('args.html')
+
+@app.route('/headers')
+def headers():
+    return render_template('headers.html')
+
+@app.route('/cookies')
+def cookies():
+    resp = make_response(render_template('cookies.html'))
+    if 'name' not in request.cookies:
+        resp.set_cookie('name', 'Ilya')
+    else:
+        resp.set_cookie('name', expires=0)
+    return resp
+
+@app.route('/form', methods=['GET', 'POST'])
+def form():
+    return render_template('form.html')
+
+@app.route('/phone', methods=['GET', 'POST'])
+def phone():
+    error = None
+    formatted_phone = None
+
+    if request.method == 'POST':
+        phone = request.form.get('phone', '').strip()
+        
+        if phone:
+            is_valid, result = validate_phone(phone)
+            if not is_valid:
+                error = result
+            else:
+                formatted_phone = result
+            
+    return render_template('phone.html', error=error, formatted_phone=formatted_phone)
