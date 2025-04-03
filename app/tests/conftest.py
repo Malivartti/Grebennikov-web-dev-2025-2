@@ -2,7 +2,7 @@ from datetime import datetime
 import pytest
 from flask import template_rendered
 from contextlib import contextmanager
-from app.app import application
+from app import application
 
 @pytest.fixture
 def app():
