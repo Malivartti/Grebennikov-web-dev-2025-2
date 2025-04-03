@@ -20,7 +20,7 @@ def test_index_page_invalide_method(client, captured_templates):
 
 def test_posts_page_template(client, captured_templates, mocker, posts_list):
     with captured_templates as templates:
-        mocker.patch("app.app.posts_list", return_value=posts_list, autospec=True)
+        mocker.patch("app.posts_list", return_value=posts_list, autospec=True)
         
         response = client.get('/posts')
         assert response.status_code == 200
@@ -32,7 +32,7 @@ def test_posts_page_template(client, captured_templates, mocker, posts_list):
 
 def test_posts_page_args(client, captured_templates, mocker, posts_list):
     with captured_templates as templates:
-        mocker.patch("app.app.posts_list", return_value=posts_list, autospec=True)
+        mocker.patch("app.posts_list", return_value=posts_list, autospec=True)
 
         response = client.get('/posts')
         assert response.status_code == 200
@@ -47,7 +47,7 @@ def test_posts_page_args(client, captured_templates, mocker, posts_list):
 
 def test_posts_page_insert(client, captured_templates, mocker, posts_list):
     with captured_templates as templates:
-        mocker.patch("app.app.posts_list", return_value=posts_list, autospec=True)
+        mocker.patch("app.posts_list", return_value=posts_list, autospec=True)
 
         response = client.get('/posts')
         assert response.status_code == 200
@@ -65,7 +65,7 @@ def test_posts_page_insert(client, captured_templates, mocker, posts_list):
 
 def test_posts_page_insert_date_fromat(client, captured_templates, mocker, posts_list):
     with captured_templates as templates:
-        mocker.patch("app.app.posts_list", return_value=posts_list, autospec=True)
+        mocker.patch("app.posts_list", return_value=posts_list, autospec=True)
 
         response = client.get('/posts')
         assert response.status_code == 200
@@ -85,7 +85,7 @@ def test_posts_page_insert_date_fromat(client, captured_templates, mocker, posts
 
 def test_post_page_template(client, captured_templates, mocker, posts_list):
     with captured_templates as templates:
-        mocker.patch("app.app.posts_list", return_value=posts_list, autospec=True)
+        mocker.patch("app.posts_list", return_value=posts_list, autospec=True)
         
         id = 0
         response = client.get(f'/posts/{id}')
@@ -97,7 +97,7 @@ def test_post_page_template(client, captured_templates, mocker, posts_list):
 
 def test_post_page_args(client, captured_templates, mocker, posts_list):
     with captured_templates as templates:
-        mocker.patch("app.app.posts_list", return_value=posts_list, autospec=True)
+        mocker.patch("app.posts_list", return_value=posts_list, autospec=True)
         
         id = 0
         response = client.get(f'/posts/{id}')
@@ -110,7 +110,7 @@ def test_post_page_args(client, captured_templates, mocker, posts_list):
 
 def test_post_page_insert(client, captured_templates, mocker, posts_list):
     with captured_templates as templates:
-        mocker.patch("app.app.posts_list", return_value=posts_list, autospec=True)
+        mocker.patch("app.posts_list", return_value=posts_list, autospec=True)
         
         id = 0
         response = client.get(f'/posts/{id}')
@@ -124,7 +124,7 @@ def test_post_page_insert(client, captured_templates, mocker, posts_list):
 
 def test_post_page_insert_data_format(client, captured_templates, mocker, posts_list):
     with captured_templates as templates:
-        mocker.patch("app.app.posts_list", return_value=posts_list, autospec=True)
+        mocker.patch("app.posts_list", return_value=posts_list, autospec=True)
         
         id = 0
         response = client.get(f'/posts/{id}')
@@ -135,7 +135,7 @@ def test_post_page_insert_data_format(client, captured_templates, mocker, posts_
 
 def test_post_page_non_existent_id(client, captured_templates, mocker, posts_list):
     with captured_templates as templates:
-        mocker.patch("app.app.posts_list", return_value=posts_list, autospec=True)
+        mocker.patch("app.posts_list", return_value=posts_list, autospec=True)
         
         id = 10
         response = client.get(f'/posts/{id}')
@@ -144,7 +144,7 @@ def test_post_page_non_existent_id(client, captured_templates, mocker, posts_lis
 
 def test_post_page_invalide_id(client, captured_templates, mocker, posts_list):
     with captured_templates as templates:
-        mocker.patch("app.app.posts_list", return_value=posts_list, autospec=True)
+        mocker.patch("app.posts_list", return_value=posts_list, autospec=True)
         
         id = 'abc'
         response = client.get(f'/posts/{id}')
@@ -152,7 +152,7 @@ def test_post_page_invalide_id(client, captured_templates, mocker, posts_list):
 
 def test_post_page_insert_comments(client, captured_templates, mocker, posts_list_with_comments):
     with captured_templates as templates:
-        mocker.patch("app.app.posts_list", return_value=posts_list_with_comments, autospec=True)
+        mocker.patch("app.posts_list", return_value=posts_list_with_comments, autospec=True)
         
         id = 0
         response = client.get(f'/posts/{id}')
