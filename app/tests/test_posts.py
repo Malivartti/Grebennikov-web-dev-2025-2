@@ -141,6 +141,7 @@ def test_post_page_non_existent_id(client, captured_templates, mocker, posts_lis
         assert response.status_code == 404
 
 
+
 def test_post_page_invalide_id(client, mocker, posts_list):
     mocker.patch("app.posts_list", return_value=posts_list, autospec=True)
 
