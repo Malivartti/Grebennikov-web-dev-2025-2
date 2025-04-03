@@ -9,10 +9,9 @@ def test_index_page_template(client, captured_templates):
         template, _ = templates[0]
         assert template.name == 'index.html'
 
-def test_index_page_invalide_method(client, captured_templates):
-    with captured_templates as templates:
-        response = client.post('/')
-        assert response.status_code == 405
+def test_index_page_invalide_method(client):
+    response = client.post('/')
+    assert response.status_code == 405
 
 # ----------------------------------- END INDEX -----------------------------------
 
@@ -142,13 +141,13 @@ def test_post_page_non_existent_id(client, captured_templates, mocker, posts_lis
         assert response.status_code == 404
 
 
-def test_post_page_invalide_id(client, captured_templates, mocker, posts_list):
-    with captured_templates as templates:
-        mocker.patch("app.posts_list", return_value=posts_list, autospec=True)
-        
-        id = 'abc'
-        response = client.get(f'/posts/{id}')
-        assert response.status_code == 404
+
+def test_post_page_invalide_id(client, mocker, posts_list):
+    mocker.patch("app.posts_list", return_value=posts_list, autospec=True)
+
+    id = 'abc'
+    response = client.get(f'/posts/{id}')
+    assert response.status_code == 404
 
 def test_post_page_insert_comments(client, captured_templates, mocker, posts_list_with_comments):
     with captured_templates as templates:
