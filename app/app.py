@@ -96,3 +96,7 @@ def phone():
                 formatted_phone = result
             
     return render_template('phone.html', error=error, formatted_phone=formatted_phone)
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('404.html'), 404
