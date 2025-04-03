@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <h1 class="my-3">{{ post.title }}</h1>
+
+        <p>{{ post.author}}, {{ post.date.strftime('%d.%m.%Y') }}</p>
+
+        <img class="img-fluid my-3 d-block mx-auto border" style="max-width: 85%" src="{{ url_for('static', filename='images/' + post.image_id) }}" alt="Post image" >
+
+        <p style="text-align: justify;"> {{ post.text }}</p>
+
+        {% include 'comments.html' %}
+    </div>
+</div> 
+{% endblock %}

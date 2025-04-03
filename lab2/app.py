@@ -1,23 +1,12 @@
 import random
-from flask import Flask, render_template, abort, make_response, request, session, redirect, url_for, flash
-from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required
+from flask import Flask, render_template, abort, make_response, request
 from faker import Faker
 from functools import lru_cache
 from lib.validate import validate_phone
-from urllib.parse import urlparse
 
 fake = Faker()
 
 app = Flask(__name__)
-app.config.from_pyfile('config.py')
-
-login_manager = LoginManager()
-login_manager.init_app(app)
-
-login_manager.login_view = 'login'
-login_manager.login_message = 'Для доступа к данной странице необходимо пройти процедуру аутентификации'
-login_manager.login_message_category = 'warning'
-
 application = app
 
 images_ids = ['7d4e9175-95ea-4c5f-8be5-92a6b708bb3c',
@@ -48,64 +37,6 @@ def generate_post(i):
 @lru_cache
 def posts_list():
     return sorted([generate_post(i) for i in range(5)], key=lambda p: p['date'], reverse=True)
-
-def get_users():
-    return [
-        {
-            'id': '1',
-            'login': 'user',
-            'password': 'qwerty'
-        }
-    ]
-
-class User(UserMixin):
-    def __init__(self, user_id, login):
-        self.id = user_id
-        self.login = login
-
-
-@login_manager.user_loader
-def load_user(user_id):
-    for user in get_users():
-        if user_id == user['id']:
-            return User(user['id'], user['login'])
-    return None
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        login = request.form.get('login')
-        password = request.form.get('password')
-        remember_me = request.form.get('remember_me') == 'on'
-
-        if login and password:
-            for user in get_users():
-                if user['login'] == login and user['password'] == password:
-                    user = User(user['id'], user['login'])
-                    login_user(user, remember=remember_me)
-                    flash('Вы успешно аутентифицированны', 'success')
-
-                    next_page = request.args.get('next')
-                    if next_page:
-                        parsed = urlparse(next_page)
-                        if parsed.scheme or parsed.netloc:
-                            return redirect(url_for('index'))
-                        print(next_page)
-                        return redirect(next_page)
-                    return redirect(url_for('index'))
-            return render_template('auth.html', error="Пользователь не найден")
-
-    return render_template('auth.html')
-
-@app.route('/logout')
-def logout():
-    logout_user()
-    return redirect(url_for('index'))
-
-@app.route('/secret')
-@login_required
-def secret():
-    return render_template('secret.html')
 
 @app.route('/')
 def index():
@@ -169,11 +100,3 @@ def phone():
 @app.errorhandler(404)
 def page_not_found(error):
     return render_template('404.html'), 404
-
-@app.route('/counter')
-def counter():
-    if not session.get('counter'):
-        session['counter'] = 0
-    session['counter'] += 1
-
-    return render_template('counter.html')
