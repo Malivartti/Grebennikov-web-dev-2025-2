@@ -1,11 +1,14 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, redirect, render_template, url_for
 
 app = Flask(__name__)
 
-@app.route('/')
+
+@app.route("/")
 def index():
-  return render_template('index.html')
+    return render_template("index.html")
+
 
 @app.errorhandler(404)
 def page_not_found(error):
-    return redirect(url_for('index'))
+    print("page_not_found")
+    return redirect(url_for("index"))

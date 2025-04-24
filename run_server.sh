@@ -1,2 +1,2 @@
 #!/bin/bash
-gunicorn app:application
+gunicorn --reload app:application
