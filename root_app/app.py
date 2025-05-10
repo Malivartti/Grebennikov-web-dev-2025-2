@@ -10,5 +10,4 @@ def index():
 
 @app.errorhandler(404)
 def page_not_found(error):
-    print("page_not_found")
     return redirect(url_for("index"))

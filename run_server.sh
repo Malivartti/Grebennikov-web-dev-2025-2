@@ -1,2 +1,2 @@
 #!/bin/bash
-gunicorn --reload app:application
+gunicorn --workers=4 --reload app:application
