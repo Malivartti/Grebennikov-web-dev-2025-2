@@ -16,3 +16,6 @@ class Store:
 def setup_store(app: "Application"):
     app.db = SQLAlchemy(app)
     app.store = Store(app)
+
+    with app.app_context():
+        app.db.create_all()

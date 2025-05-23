@@ -27,7 +27,6 @@ class VisitAccessor(BaseAccessor):
     def get_visits(
         self, page: int = 1, per_page: int = 10, user_id: int | None = None
     ) -> tuple[list[tuple[VisitLog, User]], Pagination]:
-        # Создаем запрос для получения только VisitLog для пагинации
         base_query = self.app.db.session.query(VisitLog)
 
         if user_id is not None:

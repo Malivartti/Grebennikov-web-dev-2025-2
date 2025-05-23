@@ -1,0 +1,24 @@
+{% macro review_form(course_id, next_url=None) %}
+<form method="POST" action="{{ url_for('courses.create_review', course_id=course_id) }}">
+  {% if next_url %}
+  <input type="hidden" name="next" value="{{ next_url }}">
+  {% endif %}
+
+  <div class="mb-3">
+    <label for="rating" class="form-label">Оценка</label>
+    <select class="form-select" id="rating" name="rating">
+      <option value="5" selected>Отлично</option>
+      <option value="4">Хорошо</option>
+      <option value="3">Удовлетворительно</option>
+      <option value="2">Неудовлетворительно</option>
+      <option value="1">Плохо</option>
+      <option value="0">Ужасно</option>
+    </select>
+  </div>
+  <div class="mb-3">
+    <label for="text" class="form-label">Текст отзыва</label>
+    <textarea class="form-control" id="text" name="text" rows="3" required></textarea>
+  </div>
+  <button type="submit" class="btn btn-primary">Отправить отзыв</button>
+</form>
+{% endmacro %}

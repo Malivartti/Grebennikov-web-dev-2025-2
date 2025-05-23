@@ -59,7 +59,7 @@ class UserAccessor(BaseAccessor):
             user = self.get_user_by_id(user_id)
             if not user:
                 raise Exception(error_text + "Пользователь не найден")
-            
+
             role_id = user_updates.get("user_updates")
             if role_id:
                 role = self.get_role_by_id(role_id)
@@ -87,13 +87,13 @@ class UserAccessor(BaseAccessor):
         except Exception as err:
             self.app.db.session.rollback()
             raise Exception(error_text + str(err)) from err
-        
+
     def get_role_by_id(self, role_id: int) -> Role:
         return self.app.db.session.get(Role, role_id)
 
     def get_roles(self) -> list[Role]:
         return self.app.db.session.query(Role).all()
-    
+
     def create_role(self, role_data: dict) -> Role:
         error_text = "Ошибка при создании роли: "
         try:

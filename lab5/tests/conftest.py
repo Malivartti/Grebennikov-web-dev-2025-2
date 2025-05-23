@@ -1,3 +1,4 @@
+from collections.abc import Generator
 from contextlib import contextmanager
 from typing import TYPE_CHECKING
 
@@ -21,8 +22,23 @@ def pytest_configure(config):
 
 
 @pytest.fixture
-def app() -> "Application":
-    return application
+def app() -> "Generator[Application]":
+    origin_session_cookie_path = application.config.get("SESSION_COOKIE_PATH")
+    origin_remember_cookie_path = application.config.get("REMEMBER_COOKIE_PATH")
+
+    application.config.update(
+        {
+            "TESTING": True,
+            "SESSION_COOKIE_PATH": "/",
+            "REMEMBER_COOKIE_PATH": "/",
+        }
+    )
+
+    yield application
+
+    application.config["TESTING"] = False
+    application.config["SESSION_COOKIE_PATH"] = origin_session_cookie_path
+    application.config["REMEMBER_COOKIE_PATH"] = origin_remember_cookie_path
 
 
 @pytest.fixture

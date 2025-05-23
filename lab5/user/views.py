@@ -146,7 +146,7 @@ def user_update(user_id: int):
                 roles=roles,
                 errors=errors,
             )
-        
+
         if check_rights(["edit_user"]):
             if request.form.get("role_id"):
                 form_data["role_id"] = int(request.form.get("role_id"))

@@ -30,7 +30,7 @@ def test_admin_user_rights(app, admin_user, right):
 
 @pytest.mark.parametrize("right", ["edit_self", "view_self", "view_own_visits"])
 def test_ordinary_user_rights(app, ordinary_user, right):
-    with app.test_request_context(f'/users/{ordinary_user.id}'):
+    with app.test_request_context(f"/users/{ordinary_user.id}"):
         login_user(User(ordinary_user))
 
         @check_rights([right])
@@ -43,7 +43,7 @@ def test_ordinary_user_rights(app, ordinary_user, right):
 
 @pytest.mark.parametrize("right", ["edit_self", "view_self", "view_own_visits"])
 def test_no_role_user_rights(app, no_role_user, right):
-    with app.test_request_context(f'/users/{no_role_user.id}'):
+    with app.test_request_context(f"/users/{no_role_user.id}"):
         login_user(User(no_role_user))
 
         @check_rights([right])

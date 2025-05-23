@@ -8,7 +8,9 @@ if TYPE_CHECKING:
 
 
 def setup_config(app: "Application"):
-    load_dotenv()
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    dotenv_path = os.path.join(current_dir, ".env")
+    load_dotenv(dotenv_path, override=True)
 
     db_user = os.getenv("MYSQL_USER")
     db_password = os.getenv("MYSQL_PASSWORD")
@@ -23,3 +25,6 @@ def setup_config(app: "Application"):
     app.config["SECRET_KEY"] = (
         "2ad8d52a848cf094ec501e8b51271610ef378e42cc8171e8654c10f40dd36088"
     )
+    app.config["REMEMBER_COOKIE_PATH"] = "/lab5"
+    app.config["SESSION_COOKIE_PATH"] = "/lab5"
+    app.config["SESSION_COOKIE_NAME"] = "lab5_session"

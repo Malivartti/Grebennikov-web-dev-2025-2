@@ -186,7 +186,11 @@ def test_user_upsert_post_edit_success(
 
 
 def test_user_upsert_post_edit_validation_errors(
-    authenticated_client, captured_templates, test_user, user_accessor, test_role
+    authenticated_client,
+    captured_templates,
+    test_user,
+    user_accessor,
+    test_role,
 ):
     with captured_templates as templates:
         new_last_name = ""

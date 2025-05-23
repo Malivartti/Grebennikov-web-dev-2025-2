@@ -1,0 +1,38 @@
+from flask import Flask
+from flask_migrate import Migrate
+from sqlalchemy.exc import SQLAlchemyError
+
+from lab6.app.auth import bp as auth_bp, init_login_manager
+from lab6.app.courses import bp as courses_bp
+from lab6.app.models import db
+from lab6.app.routes import bp as main_bp
+
+
+def handle_sqlalchemy_error(err):
+    head = (
+        "Возникла ошибка при подключении к базе данных. "
+        "Повторите попытку позже."
+    )
+    error_msg = f"{head} (Подробнее: {err})"
+    print(error_msg)
+    return error_msg, 500
+
+
+def create_app(test_config=None):
+    app = Flask(__name__, instance_relative_config=False)
+    app.config.from_pyfile("config.py")
+
+    if test_config:
+        app.config.from_mapping(test_config)
+
+    db.init_app(app)
+    migrate = Migrate(app, db)
+
+    init_login_manager(app)
+
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(courses_bp)
+    app.register_blueprint(main_bp)
+    app.errorhandler(SQLAlchemyError)(handle_sqlalchemy_error)
+
+    return app

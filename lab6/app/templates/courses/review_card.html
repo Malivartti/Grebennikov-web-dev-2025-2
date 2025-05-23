@@ -1,0 +1,129 @@
+{% macro review_card(review, current_user, is_separate) %}
+<div class="card">
+  <div class="card-body">
+    <div class="d-flex justify-content-between mb-3">
+      <div>
+        <span class="badge bg-primary me-2">★ {{ review.rating }}</span>
+        <small class="text-muted">{{ review.created_at.strftime('%d.%m.%Y') }}</small>
+      </div>
+      {% if current_user.is_authenticated and current_user.id == review.user_id %}
+      <div class="dropdown">
+        <button class="btn btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="bi bi-three-dots"></i>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item edit-review-btn" href="#" data-review-id="{{ review.id }}"
+              data-review-rating="{{ review.rating }}" data-review-text="{{ review.text }}">Изменить</a></li>
+          <li><a class="dropdown-item delete-review-btn" href="#" data-review-id="{{ review.id }}">Удалить</a></li>
+        </ul>
+      </div>
+      {% endif %}
+    </div>
+    <h5 class="card-title">{{ review.user.full_name }}</h5>
+    <p class="card-text review-text{{ " separate-review-text" if is_separate }}">{{ review.text }}</p>
+  </div>
+</div>
+{% endmacro %}
+
+{% macro review_modals(course_id, next_url=None) %}
+<div class="modal fade" id="editReviewModal" tabindex="-1" aria-labelledby="editReviewModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="editReviewForm" method="POST">
+        {% if next_url %}
+        <input type="hidden" name="next" value="{{ next_url }}">
+        {% endif %}
+
+        <div class="modal-header">
+          <h5 class="modal-title" id="editReviewModalLabel">Изменить отзыв</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="editRating" class="form-label">Оценка</label>
+            <select class="form-select" id="editRating" name="rating">
+              <option value="5">Отлично</option>
+              <option value="4">Хорошо</option>
+              <option value="3">Удовлетворительно</option>
+              <option value="2">Неудовлетворительно</option>
+              <option value="1">Плохо</option>
+              <option value="0">Ужасно</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="editText" class="form-label">Текст отзыва</label>
+            <textarea class="form-control" id="editText" name="text" rows="3" required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button type="submit" class="btn btn-primary">Сохранить</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="deleteReviewModal" tabindex="-1" aria-labelledby="deleteReviewModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteReviewModalLabel">Подтверждение удаления</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Вы уверены, что хотите удалить этот отзыв?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+        <form id="deleteReviewForm" method="POST">
+          {% if next_url %}
+          <input type="hidden" name="next" value="{{ next_url }}">
+          {% endif %}
+
+          <button type="submit" class="btn btn-danger">Удалить</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.edit-review-btn').forEach(function (button) {
+      button.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        const reviewId = this.getAttribute('data-review-id');
+        const reviewRating = this.getAttribute('data-review-rating');
+        const reviewText = this.getAttribute('data-review-text');
+
+        document.getElementById('editRating').value = reviewRating;
+        document.getElementById('editText').value = reviewText;
+
+        document.getElementById('editReviewForm').action =
+          "{{ url_for('courses.update_review', course_id=course_id, review_id=-1) }}".replace('-1', reviewId);
+
+        var editModal = new bootstrap.Modal(document.getElementById('editReviewModal'));
+        editModal.show();
+      });
+    });
+
+    document.querySelectorAll('.delete-review-btn').forEach(function (button) {
+      button.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        const reviewId = this.getAttribute('data-review-id');
+        console.log("reviewId", reviewId)
+
+        document.getElementById('deleteReviewForm').action =
+          "{{ url_for('courses.delete_review', course_id=course_id, review_id=-1) }}".replace('-1', reviewId);
+
+        var deleteModal = new bootstrap.Modal(document.getElementById('deleteReviewModal'));
+        deleteModal.show();
+      });
+    });
+  });
+</script>
+{% endmacro %}

@@ -20,3 +20,7 @@ python-dotenv==1.1.0
 gunicorn==23.0.0
 pytest==8.3.5
 pytest-mock==3.14.0
+
+# for lab6
+alembic==1.13.1
+Flask-Migrate==4.0.7
