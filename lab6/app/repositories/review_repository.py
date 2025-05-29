@@ -13,7 +13,7 @@ class ReviewRepository:
     def get_all(self):
         return self.db.session.query(Review).all()
 
-    def get_by_course_id(self, course_id, sort="newest", page=1, per_page=10):
+    def get_by_course_id(self, course_id, sort="newest", page=1, per_page=5):
         query = select(Review).filter(Review.course_id == course_id)
 
         if sort == "newest":

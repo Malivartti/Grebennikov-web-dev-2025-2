@@ -312,7 +312,7 @@ def test_reviews_sorting(
     db_text = [
         el.text
         for el in review_repository.get_by_course_id(
-            test_course.id, sort=sort_type, page=1, per_page=10
+            test_course.id, sort=sort_type, page=1
         )
     ]
     assert html_text == db_text
