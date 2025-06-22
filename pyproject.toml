@@ -3,52 +3,24 @@ line-length = 80
 indent-width = 4
 target-version = "py312"
 exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".gitlab",
-    ".git-rewrite",
-    ".hg",
     ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pytest_cache",
-    ".pytype",
     ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "alembic",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "docker",
-    "env",
-    "etc",
-    "requirements",
+    ".pytest_cache",
     "venv",
-    "lab1",
-    "lab2",
-    "lab3",
+    ".venv",
+    "requirements",
+    ".git",
 ]
 
+
 [tool.ruff.format]
-# Аналогично black, двойные кавычки
 quote-style = "double"
-
-# Аналогично black, пробелы вместо табов
 indent-style = "space"
-
-# Аналогично black, уважаем trailing commas
 skip-magic-trailing-comma = false
-
-# Аналогично black, автоматически определяем подходящее окончание строки.
 line-ending = "auto"
 
 [tool.ruff.lint]
+ignore = ["N818"]
 # Список кодов или префиксов правил, которые следует считать исправляемыми. (https://docs.astral.sh/ruff/settings/#fixable)
 # По умолчанию все правила считаются исправляемыми.
 fixable = ["I", "RUF022", "RUF023"]
@@ -87,9 +59,8 @@ extend-select = [
     "RUF",      # https://docs.astral.sh/ruff/rules/#ruff-specific-rules-ruf
     "SIM",      # https://docs.astral.sh/ruff/rules/#flake8-simplify-sim
     "T20",      # https://docs.astral.sh/ruff/rules/#flake8-print-t20
-    "TRIO",     # https://docs.astral.sh/ruff/rules/#flake8-trio-trio
     "TRY300",   # https://docs.astral.sh/ruff/rules/try-consider-else
-    "TRY302",   # https://docs.astral.sh/ruff/rules/useless-try-except
+    "TRY203",   # https://docs.astral.sh/ruff/rules/useless-try-except
     "TRY401",   # https://docs.astral.sh/ruff/rules/verbose-log-message
     "UP",       # https://docs.astral.sh/ruff/rules/#pyupgrade-up
     "YTT",      # https://docs.astral.sh/ruff/rules/#flake8-2020-ytt
@@ -128,7 +99,6 @@ extend-ignore = [
     # не считаю критичным
     "RUF012",   # https://docs.astral.sh/ruff/rules/mutable-class-default
     "RUF021",   # https://docs.astral.sh/ruff/rules/parenthesize-chained-operators
-
 
     "SIM105",   # https://docs.astral.sh/ruff/rules/suppressible-exception – я бы включил, но мало кто знает про это и пользуется
     "SIM108",   # https://docs.astral.sh/ruff/rules/if-else-block-instead-of-if-exp – много ложных срабатываний
@@ -191,13 +161,3 @@ ignore-variadic-names = true
 # Делаем единый стиль скобок в тестах
 fixture-parentheses = false
 mark-parentheses = false
-
-
-[tool.pytest.ini_options]
-asyncio_mode="auto"
-filterwarnings = [
-    "ignore::DeprecationWarning:asyncpg.*:",
-    "ignore::DeprecationWarning:pytest_asyncio.plugin.*:",
-    "ignore::DeprecationWarning",
-]
-

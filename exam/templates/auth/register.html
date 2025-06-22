@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Регистрация{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="mb-0">Регистрация нового пользователя</h4>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          <div class="mb-3">
+            <label for="login" class="form-label">
+              Логин <span class="text-danger">*</span>
+            </label>
+            <input type="text" class="form-control" id="login" name="login" placeholder="Введите логин..."
+              value="{{ request.form.login or '' }}" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="first_name" class="form-label">
+              Имя <span class="text-danger">*</span>
+            </label>
+            <input type="text" class="form-control" id="first_name" name="first_name" placeholder="Введите имя..."
+              value="{{ request.form.first_name or '' }}" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="last_name" class="form-label">
+              Фамилия <span class="text-danger">*</span>
+            </label>
+            <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Введите фамилию..."
+              value="{{ request.form.last_name or '' }}" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="middle_name" class="form-label">
+              Отчество
+            </label>
+            <input type="text" class="form-control" id="middle_name" name="middle_name"
+              placeholder="Введите отчество..." value="{{ request.form.middle_name or '' }}">
+          </div>
+
+          <div class="mb-3">
+            <label for="password" class="form-label">
+              Пароль <span class="text-danger">*</span>
+            </label>
+            <input type="password" class="form-control" id="password" name="password" placeholder="Введите пароль..."
+              minlength="8" required>
+            <div class="form-text">Пароль должен содержать минимум 8 символов.</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="confirm_password" class="form-label">
+              Подтверждение пароля <span class="text-danger">*</span>
+            </label>
+            <input type="password" class="form-control" id="confirm_password" name="confirm_password"
+              placeholder="Повторите пароль..." required>
+          </div>
+
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-secondary">
+              Уже есть аккаунт? Войти
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Вход в систему{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="mb-0">Вход в систему</h4>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          <div class="mb-3">
+            <label for="login" class="form-label">
+              Логин <span class="text-danger">*</span>
+            </label>
+            <input type="text" class="form-control" id="login" name="login" placeholder="Введите логин..."
+              value="{{ request.form.login or '' }}" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="password" class="form-label">
+              Пароль <span class="text-danger">*</span>
+            </label>
+            <input type="password" class="form-control" id="password" name="password" placeholder="Введите пароль..."
+              required>
+          </div>
+
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="remember_me" name="remember_me" {% if
+              request.form.remember_me %}checked{% endif %}>
+            <label class="form-check-label" for="remember_me">
+              Запомнить меня
+            </label>
+          </div>
+
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary">Войти</button>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-outline-secondary">
+              Нет аккаунта? Зарегистрироваться
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
