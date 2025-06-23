@@ -1,0 +1,424 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-label mb-0">{{ title }}</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data" id="animalForm" class="needs-validation" novalidate>
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Имя <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="name" name="name" placeholder="Введить имя..."
+                            value="{{ request.form.get('name') or (animal.name if animal else '') }}" required>
+                        <div class="invalid-feedback" id="name-error-message"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Описание <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="description" name="description" rows="8"
+                            required>{{ request.form.get('description') or (animal.description if animal else '') }}</textarea>
+                        <div class="invalid-feedback" id="description-error-message"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="breed" class="form-label">Порода <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="breed" name="breed" placeholder="Введить породу..."
+                            value="{{ request.form.get('breed') or (animal.breed if animal else '') }}" required>
+                        <div class="invalid-feedback" id="breed-error-message"></div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="age_months" class="form-label">Возраст (месяцы) <span
+                                        class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="age_months" name="age_months"
+                                    placeholder="Введите возраст..."
+                                    value="{{ request.form.get('age_months') or (animal.age_months if animal else '') }}"
+                                    min="1" required>
+                                <div class="invalid-feedback" id="age_months-error-message"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="sex" class="form-label">Пол <span class="text-danger">*</span></label>
+                                <select class="form-select" id="sex" name="sex" required>
+                                    <option value="" selected disabled>Выберите пол</option>
+                                    {% for sex in sexes %}
+                                    {% set selected_sex = request.form.get('sex') or (animal.sex.value if animal else
+                                    '') %}
+                                    <option value="{{ sex.value }}" {% if selected_sex==sex.value %}selected{% endif %}>
+                                        {{ sex.label }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback" id="sex-error-message"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if not animal %}
+                    <div class="mb-3">
+                        <label class="form-label">Фотографии <span class="text-danger">*</span></label>
+                        <input type="file" id="hiddenFileInput" name="images" accept="image/*" multiple
+                            style="display: none;" required>
+                        <div class="mb-3 d-flex gap-3">
+                            <button type="button" class="btn btn-primary" id="addFilesBtn">
+                                Добавить фотографии
+                            </button>
+                            <button type="button" class="btn btn-outline-danger" id="clearAllFiles"
+                                style="display: none;">
+                                Очистить все
+                            </button>
+                        </div>
+                        <div class="form-text mb-3">
+                            Форматы: JPG, PNG, GIF. Максимальный размер: 5MB на файл
+                        </div>
+                        <div class="invalid-feedback" id="images-error-message"></div>
+                        <div id="image-preview-container" style="display: none;">
+                            <h6>Выбранные изображения:</h6>
+                            <div id="image-previews" class="row g-2"></div>
+                        </div>
+                    </div>
+                    {% else %}
+                    {% if animal.images %}
+                    <div class="mb-3">
+                        <label class="form-label">Текущие фотографии</label>
+                        {% from 'animals/macros/image_card.html' import image_gallery %}
+                        {{ image_gallery(animal.images, animal.breed, show_controls=False, size="small") }}
+                    </div>
+                    {% endif %}
+                    {% endif %}
+                    <div class="d-flex justify-content-end gap-3">
+                        <a href="{{ url_for('animal.view', id=animal.id) if animal else url_for('animal.index') }}"
+                            class="btn btn-secondary">
+                            Отмена
+                        </a>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            {{ 'Обновить' if animal else 'Создать' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde@2.18.0/dist/easymde.min.css">
+<script src="https://cdn.jsdelivr.net/npm/easymde@2.18.0/dist/easymde.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/viewerjs@1.11.3/dist/viewer.min.css">
+<script src="https://cdn.jsdelivr.net/npm/viewerjs@1.11.3/dist/viewer.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let selectedFiles = [];
+        let easyMDE;
+        let viewer;
+
+        const VALIDATION_CONFIG = {
+            ALLOWED_EXTENSIONS: ['jpg', 'jpeg', 'png', 'gif'],
+            MAX_FILE_SIZE: 5 * 1024 * 1024,
+        };
+
+        const VIEWVER_CONFIG = {
+            toolbar: {
+                zoomIn: 1,
+                zoomOut: 1,
+                oneToOne: 1,
+                prev: 1,
+                play: 1,
+                next: 1,
+            },
+            zoomable: true,
+            scalable: true,
+        }
+
+        easyMDE = new EasyMDE({
+            element: document.getElementById('description'),
+            spellChecker: false,
+            placeholder: 'Введите описание...',
+            toolbar: [
+                'bold', 'italic', 'strikethrough', '|',
+                'heading-1', 'heading-2', 'heading-3', '|',
+                'unordered-list', 'ordered-list', '|',
+                'link', 'quote', 'code', '|',
+                'preview'
+            ],
+            renderingConfig: {
+                singleLineBreaks: false,
+                codeSyntaxHighlighting: true,
+            }
+        });
+
+        function validateFileType(file) {
+            const extension = file.name.split('.').pop().toLowerCase();
+            return VALIDATION_CONFIG.ALLOWED_EXTENSIONS.includes(extension);
+        }
+
+        function validateFileSize(file) {
+            return file.size <= VALIDATION_CONFIG.MAX_FILE_SIZE;
+        }
+
+        function showFieldError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            const errorDiv = document.getElementById(`${fieldId}-error-message`);
+            if (field) {
+                field.classList.add('is-invalid');
+                field.classList.remove('is-valid');
+            }
+            if (errorDiv) {
+                errorDiv.textContent = message;
+            }
+        }
+
+        function hideFieldError(fieldId) {
+            const field = document.getElementById(fieldId);
+            const errorDiv = document.getElementById(`${fieldId}-error-message`);
+            if (field) {
+                field.classList.remove('is-invalid');
+                field.classList.add('is-valid');
+            }
+
+            if (errorDiv) {
+                errorDiv.textContent = '';
+            }
+        }
+
+        function clearAllErrors() {
+            document.querySelectorAll('.invalid-feedback').forEach(error => error.textContent = '');
+            document.querySelectorAll('.form-control, .form-select').forEach(input => {
+                input.classList.remove('is-invalid', 'is-valid');
+            });
+        }
+
+        function setupActiveValidation() {
+            document.getElementById('name').addEventListener('input', function () {
+                this.value.trim() ? hideFieldError('name') : showFieldError('name', 'Имя обязательно для заполнения');
+            });
+
+            document.getElementById('breed').addEventListener('input', function () {
+                this.value.trim() ? hideFieldError('breed') : showFieldError('breed', 'Порода обязательна для заполнения');
+            });
+
+            document.getElementById('age_months').addEventListener('input', function () {
+                const value = parseInt(this.value);
+                if (!this.value) {
+                    showFieldError('age_months', 'Возраст обязателен для заполнения');
+                } else if (value < 1) {
+                    showFieldError('age_months', 'Возраст должен быть положительным числом');
+                } else {
+                    hideFieldError('age_months');
+                }
+            });
+
+            document.getElementById('sex').addEventListener('change', function () {
+                this.value ? hideFieldError('sex') : showFieldError('sex', 'Пол обязателен для выбора');
+            });
+
+            easyMDE.codemirror.on('change', function () {
+                easyMDE.value().trim() ? hideFieldError('description') : showFieldError('description', 'Описание обязательно для заполнения');
+            });
+        }
+
+        function validateForm() {
+            let isValid = true;
+            clearAllErrors();
+
+            const name = document.getElementById('name').value.trim();
+            if (!name) {
+                showFieldError('name', 'Имя обязательно для заполнения');
+                isValid = false;
+            }
+
+            const breed = document.getElementById('breed').value.trim();
+            if (!breed) {
+                showFieldError('breed', 'Порода обязательна для заполнения');
+                isValid = false;
+            }
+
+            const description = easyMDE.value().trim();
+            if (!description) {
+                showFieldError('description', 'Описание обязательно для заполнения');
+                isValid = false;
+            }
+
+            const ageMonths = document.getElementById('age_months').value;
+            if (!ageMonths) {
+                showFieldError('age_months', 'Возраст обязателен для заполнения');
+                isValid = false;
+            } else if (parseInt(ageMonths) < 1) {
+                showFieldError('age_months', 'Возраст должен быть положительным числом');
+                isValid = false;
+            }
+
+            const sex = document.getElementById('sex').value;
+            if (!sex) {
+                showFieldError('sex', 'Пол обязателен для выбора');
+                isValid = false;
+            }
+
+            const hiddenFileInput = document.getElementById('hiddenFileInput');
+            if (hiddenFileInput && selectedFiles.length === 0 && !document.querySelector('.image-gallery')) {
+                showFieldError('images', 'Необходимо добавить хотя бы одно изображение');
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Байт';
+            const k = 1024;
+            const sizes = ['Байт', 'КБ', 'МБ'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        const hiddenFileInput = document.getElementById('hiddenFileInput');
+        if (hiddenFileInput) {
+            const previewContainer = document.getElementById('image-preview-container');
+            const previewsDiv = document.getElementById('image-previews');
+            const addFilesBtn = document.getElementById('addFilesBtn');
+            const clearAllBtn = document.getElementById('clearAllFiles');
+
+            function updateFileInput() {
+                const dt = new DataTransfer();
+                selectedFiles.forEach(file => dt.items.add(file));
+                hiddenFileInput.files = dt.files;
+                if (selectedFiles.length > 0) hideFieldError('images');
+            }
+
+            function initializeViewer() {
+                if (viewer) viewer.destroy();
+                viewer = new Viewer(previewsDiv, VIEWVER_CONFIG);
+            }
+
+            function updateImagePreviews() {
+                previewsDiv.innerHTML = '';
+                if (selectedFiles.length === 0) {
+                    previewContainer.style.display = 'none';
+                    clearAllBtn.style.display = 'none';
+                    addFilesBtn.innerHTML = 'Добавить фотографии';
+                    if (viewer) viewer.destroy();
+                    return;
+                }
+
+                previewContainer.style.display = 'block';
+                clearAllBtn.style.display = 'inline-block';
+                addFilesBtn.innerHTML = 'Добавить еще фотографии';
+
+                selectedFiles.forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const previewDiv = document.createElement('div');
+                        previewDiv.className = 'col-md-3 position-relative';
+                        previewDiv.innerHTML = `
+                        <div class="card">
+                            <div class="position-relative">
+                                <img src="${e.target.result}"
+                                     class="card-img-top preview-img"
+                                     style="height: 150px; object-fit: cover; cursor: pointer;"
+                                     alt="${file.name}"
+                                     title="${file.name} (${formatFileSize(file.size)})">
+                                <button type="button"
+                                        class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
+                                        onclick="removeImage(${index})"
+                                        title="Удалить">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                            <div class="card-body p-2">
+                                <small class="text-muted">${file.name}</small><br>
+                                <small class="text-muted">${formatFileSize(file.size)}</small>
+                            </div>
+                        </div>
+                    `;
+                        previewsDiv.appendChild(previewDiv);
+                        if (index === selectedFiles.length - 1) initializeViewer();
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            function addFiles(files) {
+                const newFiles = Array.from(files);
+                const validationErrors = [];
+
+                for (const file of newFiles) {
+                    const isDuplicate = selectedFiles.some(f => f.name === file.name && f.size === file.size);
+                    if (isDuplicate) {
+                        validationErrors.push(`Файл "${file.name}" уже добавлен`);
+                        continue;
+                    }
+                    if (!validateFileType(file)) {
+                        validationErrors.push(`Файл "${file.name}" имеет недопустимый формат`);
+                        continue;
+                    }
+                    if (!validateFileSize(file)) {
+                        validationErrors.push(`Файл "${file.name}" превышает ${formatFileSize(VALIDATION_CONFIG.MAX_FILE_SIZE)}`);
+                        continue;
+                    }
+                    selectedFiles.push(file);
+                }
+
+                if (validationErrors.length > 0) {
+                    showFieldError('images', validationErrors.join('<br>'));
+                } else if (selectedFiles.length > 0) {
+                    hideFieldError('images');
+                }
+
+                updateImagePreviews();
+                updateFileInput();
+            }
+
+            addFilesBtn.addEventListener('click', () => hiddenFileInput.click());
+            hiddenFileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    addFiles(e.target.files);
+                }
+            });
+            clearAllBtn.addEventListener('click', () => {
+                if (confirm('Удалить все выбранные файлы?')) {
+                    selectedFiles = [];
+                    updateImagePreviews();
+                    updateFileInput();
+                    showFieldError('images', 'Необходимо добавить хотя бы одно изображение');
+                }
+            });
+
+            window.removeImage = function (index) {
+                selectedFiles.splice(index, 1);
+                updateImagePreviews();
+                updateFileInput();
+                if (selectedFiles.length === 0) showFieldError('images', 'Необходимо добавить хотя бы одно изображение');
+            };
+        }
+
+        setupActiveValidation();
+
+        const form = document.getElementById('animalForm');
+        const submitBtn = document.getElementById('submitBtn');
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            form.classList.add('was-validated');
+            if (validateForm()) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Сохранение...';
+                form.submit();
+            }
+        });
+
+        const existingGallery = document.querySelector('.image-gallery');
+        if (existingGallery) {
+            new Viewer(existingGallery, VIEWVER_CONFIG);
+        }
+    });
+</script>
+{% endblock %}

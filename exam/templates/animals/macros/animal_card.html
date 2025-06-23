@@ -1,0 +1,63 @@
+{% macro animal_card(animal) %}
+<div class="col-md-4 mb-4">
+    <div class="card h-100">
+        <img src="{{ url_for('static', filename='uploads/' + animal.images[0].filename) }}" class="card-img-top"
+            alt="{{ animal.breed }}" style="height: 200px; object-fit: cover;">
+
+        <div class="card-body d-flex flex-column">
+            <h5 class="card-title">{{ animal.name }}</h5>
+            <p class="card-text">{{ animal.description_preview }}{% if animal.description|length > 100 %}...{% endif %}
+            </p>
+
+            <div class="mt-auto">
+                <div class="text-muted"><strong>Порода:</strong> {{ animal.breed }}</div>
+                <div class="text-muted"><strong>Возраст:</strong> {{ animal.age_months }} мес.<br></div>
+                <div class="text-muted"><strong>Пол:</strong> {{ sex_label[animal.sex] }}</div>
+            </div>
+
+            <div class="mt-2 d-flex justify-content-between align-items-center">
+                <div>
+                    {% if animal.status == AnimalStatus.AVAILABLE %}
+                    <span class="badge bg-success">{{animal_status_label[animal.status]}}</span>
+                    {% elif animal.status == AnimalStatus.ADOPTION %}
+                    <span class="badge bg-warning">{{animal_status_label[animal.status]}}</span>
+                    {% else %}
+                    <span class="badge bg-secondary">{{animal_status_label[animal.status]}}</span>
+                    {% endif %}
+                </div>
+
+                <div>
+                    {% if animal.adoption_count is defined and animal.adoption_count > 0 %}
+                    <small class="text-primary">
+                        <strong>{{ animal.adoption_count }}</strong>
+                        заяв.
+                    </small>
+                    {% else %}
+                    <small class="text-muted">
+                        Нет заявок
+                    </small>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer bg-transparent">
+            <div class="d-flex gap-1">
+                <a href="{{ url_for('animal.view', id=animal.id) }}"
+                    class="btn btn-primary btn-sm flex-grow-1">Подробнее</a>
+                {% if check_rights([Right.ANIMAL_UPDATE]) %}
+                <a href="{{ url_for('animal.update', id=animal.id) }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-pencil"></i>
+                </a>
+                {% endif %}
+                {% if check_rights([Right.ANIMAL_DELETE]) %}
+                <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal"
+                    data-bs-target="#deleteModal{{ animal.id }}">
+                    <i class="bi bi-trash"></i>
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}

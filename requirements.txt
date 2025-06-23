@@ -24,3 +24,7 @@ pytest-mock==3.14.0
 # for lab6
 alembic==1.13.1
 Flask-Migrate==4.0.7
+
+#exam
+markdown==3.8.2
+bleach==6.2.0

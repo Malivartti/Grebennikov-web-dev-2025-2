@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+{% from "macros/pagination.html" import pagination %}
+
+{% block title %}{{ animal.breed }}{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <a href="{{ url_for('animal.index') }}" class="btn btn-secondary">
+        Назад к списку
+    </a>
+</div>
+<div class="row mb-4">
+
+    <div class="col-lg-6">
+        {% if animal.images %}
+        <div id="animalCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
+            {% if animal.images|length > 1 %}
+            <div class="carousel-indicators">
+                {% for image in animal.images %}
+                <button type="button" data-bs-target="#animalCarousel" data-bs-slide-to="{{ loop.index0 }}" {% if
+                    loop.first %}class="active" aria-current="true" {% endif %}
+                    aria-label="Слайд {{ loop.index }}"></button>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="carousel-inner">
+                {% for image in animal.images %}
+                <div class="carousel-item {% if loop.first %}active{% endif %}">
+                    <img src="{{ url_for('static', filename='uploads/' + image.filename) }}"
+                        class="d-block w-100 rounded" alt="{{ animal.breed }}"
+                        style="height: 400px; object-fit: cover;">
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if animal.images|length > 1 %}
+            <button class="carousel-control-prev" type="button" data-bs-target="#animalCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#animalCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="bg-light d-flex align-items-center justify-content-center rounded" style="height: 400px;">
+            <i class="bi bi-heart-fill" style="font-size: 3rem; color: #6c757d;"></i>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">{{ animal.breed }}</h3>
+                <div>
+                    {% if check_rights([Right.ANIMAL_UPDATE]) %}
+                    <a href="{{ url_for('animal.update', id=animal.id) }}" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    {% endif %}
+                    {% if check_rights([Right.ANIMAL_DELETE]) %}
+                    <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal"
+                        data-bs-target="#deleteModal{{ animal.id }}">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-4"><strong>Имя:</strong></div>
+                    <div class="col-sm-8">{{ animal.name }}</div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4"><strong>Порода:</strong></div>
+                    <div class="col-sm-8">{{ animal.breed }}</div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4"><strong>Возраст:</strong></div>
+                    <div class="col-sm-8">{{ animal.age_months }} мес.</div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4"><strong>Пол:</strong></div>
+                    <div class="col-sm-8">{{ sex_label[animal.sex] }}</div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4"><strong>Статус:</strong></div>
+                    <div class="col-sm-8">
+                        {% if animal.status == AnimalStatus.AVAILABLE %}
+                        <span class="badge bg-success">{{ animal_status_label[animal.status]}}</span>
+                        {% elif animal.status == AnimalStatus.ADOPTION %}
+                        <span class="badge bg-warning">{{ animal_status_label[animal.status]}}</span>
+                        {% else %}
+                        <span class="badge bg-secondary">{{ animal_status_label[animal.status]}}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row">
+                    <h6>Описание</h6>
+                    <div class="description-content">{{ animal.description_html|safe }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if check_rights([Right.ADOPTION_CREATE]) %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Усыновление</h5>
+            </div>
+            <div class="card-body">
+                {% if user_adoption %}
+                <h6 class="alert-heading">Ваша заявка</h6>
+                <p class="mb-2">
+                    <strong>Дата подачи:</strong> {{ user_adoption.submission_date.strftime('%d.%m.%Y') }}<br>
+                    <strong>Контакты:</strong> {{ user_adoption.contact }}<br>
+                    <strong>Статус:</strong>
+                    {% if user_adoption.status.value == 'pending' %}
+                    <span class="badge bg-warning">Ожидает рассмотрения</span>
+                    {% elif user_adoption.status.value == 'accepted' %}
+                    <span class="badge bg-success">Принята</span>
+                    {% elif user_adoption.status.value == 'rejected' %}
+                    <span class="badge bg-danger">Отклонена</span>
+                    {% elif user_adoption.status.value == 'rejected_adopted' %}
+                    <span class="badge bg-secondary">Отклонена (животное усыновлено)</span>
+                    {% endif %}
+                </p>
+                {% else %}
+                {% if animal.status != AnimalStatus.ADOPTED %}
+                <p>Вы можете подать заявку на усыновление этого животного.</p>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#adoptionModal">
+                    Подать заявку на усыновление
+                </button>
+                {% else %}
+                Это животное недоступно для усыновления.
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if check_rights([Right.ADOPTION_MANAGE]) %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Заявки на усыновление</h5>
+    </div>
+    <div class="card-body">
+        {% if adoptions %}
+        {% for adoption in adoptions %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8 mb-2">
+                        <strong>Пользователь:</strong> {{ adoption.user.full_name }}<br>
+                        <strong>Контакты:</strong> {{ adoption.contact }}<br>
+                        <strong>Дата подачи:</strong> {{ adoption.submission_date.strftime('%d.%m.%Y') }}<br>
+                        <strong>Статус:</strong>
+                        {% if adoption.status == AdoptionStatus.PENDING %}
+                        <span class="badge bg-warning">{{ adoption_status_label[adoption.status] }}</span>
+                        {% elif adoption.status == AdoptionStatus.ACCEPTED %}
+                        <span class="badge bg-success">{{ adoption_status_label[adoption.status] }}</span>
+                        {% elif adoption.status == AdoptionStatus.REJECTED %}
+                        <span class="badge bg-danger">{{ adoption_status_label[adoption.status] }}</span>
+                        {% elif adoption.status == AdoptionStatus.REJECTED_ADOPTED %}
+                        <span class="badge bg-secondary">{{ adoption_status_label[adoption.status] }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4 text-end">
+                        {% if adoption.status == AdoptionStatus.PENDING %}
+                        <div class="d-grid gap-2">
+                            <form method="POST"
+                                action="{{ url_for('animal.accept_adoption', adoption_id=adoption.id) }}">
+                                <button type="submit" class="btn btn-success btn-sm w-100">
+                                    Принять
+                                </button>
+                            </form>
+                            <form method="POST"
+                                action="{{ url_for('animal.reject_adoption', adoption_id=adoption.id) }}">
+                                <button type="submit" class="btn btn-danger btn-sm w-100">
+                                    Отклонить
+                                </button>
+                            </form>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% if adoption_total_count > adoption_per_page %}
+        {{ pagination(adoption_page, adoption_per_page, adoption_total_count, 'animal.view') }}
+        {% endif %}
+        {% else %}
+        <div class="text-center py-5">
+            <h3 class="text-muted">Заявок пока нет</h3>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endif %}
+
+
+
+{% if check_rights([Right.ADOPTION_CREATE]) and not user_adoption and animal.status != AnimalStatus.ADOPTED %}
+<div class="modal fade" id="adoptionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Подача заявки на усыновление</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('animal.create_adoption', id=animal.id) }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="contact" class="form-label">
+                            Контактные данные <span class="text-danger">*</span>
+                        </label>
+                        <textarea class="form-control" id="contact" name="contact" rows="3"
+                            placeholder="Укажите контактные данные..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Отмена
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        Отправить заявку
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<style>
+    .carousel-control-prev,
+    .carousel-control-next {
+        width: 5%;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 0 5px 5px 0;
+    }
+
+    .carousel-control-next {
+        border-radius: 5px 0 0 5px;
+    }
+
+    .carousel-control-prev:hover,
+    .carousel-control-next:hover {
+        background: rgba(0, 0, 0, 0.5);
+    }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        width: 2rem;
+        height: 2rem;
+        background-size: 100%, 100%;
+    }
+
+    .carousel-indicators [data-bs-target] {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        background-color: rgba(255, 255, 255, 0.3);
+        margin: 0 3px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    .carousel-indicators .active {
+        background-color: rgba(255, 255, 255, 0.9);
+        border-color: rgba(255, 255, 255, 1);
+    }
+</style>
+
+{% if check_rights([Right.ANIMAL_DELETE]) %}
+{% from "animals/macros/delete_modal.html" import delete_modal with context %}
+{{ delete_modal(animal) }}
+{% endif %}
+{% endblock %}

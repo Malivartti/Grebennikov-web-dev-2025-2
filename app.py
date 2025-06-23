@@ -1,5 +1,6 @@
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 
+from exam.app import app as exam_app
 from lab1.app import app as lab1_app
 from lab2.app import app as lab2_app
 from lab3.app import app as lab3_app
@@ -19,6 +20,7 @@ app = DispatcherMiddleware(
         "/lab4": lab4_app,
         "/lab5": lab5_app,
         "/lab6": lab6_app,
+        "/exam": exam_app,
     },
 )
 

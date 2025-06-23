@@ -1,0 +1,58 @@
+{% macro image_card(image, animal_breed="", show_controls=False, size="medium") -%}
+{% set image_url = url_for('static', filename='uploads/' + image.filename) %}
+{% if size == "small" %}
+    {% set card_height = "150px" %}
+{% elif size == "large" %}
+    {% set card_height = "300px" %}
+{% else %}
+    {% set card_height = "200px" %}
+{% endif %}
+
+<div class="image-card" data-image-id="{{ image.id }}">
+    <div class="card h-100">
+        <div class="position-relative">
+            <img src="{{ image_url }}"
+                 class="card-img-top viewer-image"
+                 alt="Изображение животного пароды {{ animal_breed }}"
+                 style="height: {{ card_height }}; object-fit: cover; cursor: pointer;"
+            >
+
+            {% if show_controls %}
+            <div class="position-absolute top-0 end-0 p-2">
+                <div class="btn-group-vertical" role="group">
+                    <button type="button"
+                            class="btn btn-sm btn-primary opacity-75"
+                            onclick="viewImage('{{ image_url }}', '{{ animal_breed }} - {{ image.filename }}')"
+                            title="Просмотр">
+                        <i class="bi bi-eye"></i>
+                    </button>
+
+                    {% if check_rights(Right.ANIMAL_UPDATE) %}
+                    <button type="button"
+                            class="btn btn-sm btn-danger opacity-75"
+                            onclick="deleteImage({{ image.id }}, '{{ image.filename }}')"
+                            title="Удалить">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{%- endmacro %}
+
+{% macro image_gallery(images, animal_breed="", show_controls=False, size="medium") -%}
+{% if images %}
+<div class="image-gallery">
+    <div class="row g-3">
+        {% for image in images %}
+        <div class="col-md-3">
+            {{ image_card(image, animal_breed, show_controls, size) }}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{%- endmacro %}

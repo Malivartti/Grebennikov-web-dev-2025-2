@@ -1,0 +1,43 @@
+{% macro animal_filter(search, sexes, selected_sex, statuses, selected_status) %}
+<div class="card mb-4">
+  <div class="card-body">
+    <form method="GET" class="row g-3">
+      <div class="col-md-4">
+        <label for="search" class="form-label">Поиск</label>
+        <input type="text" class="form-control" id="search" name="search" value="{{ search or '' }}"
+          placeholder="Имя, порода, описание...">
+      </div>
+
+      <div class="col-md-2">
+        <label for="sex" class="form-label">Пол</label>
+        <select class="form-select" id="sex" name="sex">
+          <option value="">Все</option>
+          {% for sex in sexes %}
+          <option value="{{ sex.value }}" {% if selected_sex==sex.value %}selected{% endif %}>
+            {{ sex.label }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <label for="status" class="form-label">Статус</label>
+        <select class="form-select" id="status" name="status">
+          <option value="">Все</option>
+          {% for status in statuses %}
+          <option value="{{ status.value }}" {% if selected_status==status.value %}selected{% endif %}>
+            {{ status.label }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-3 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary me-2">Фильтр</button>
+        <a href="{{ url_for('animal.index') }}" class="btn btn-outline-secondary">Сбросить</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endmacro %}

@@ -1,6 +1,7 @@
 from flask import Flask
 
 from exam.auth import setup_login_manager
+from exam.context_processor import setup_context_processor
 from exam.routes import setup_routes
 from exam.store import Store, setup_store
 
@@ -15,4 +16,5 @@ app = Application(__name__)
 app.config.from_pyfile("config.py")
 setup_store(app)
 setup_login_manager(app)
+setup_context_processor(app)
 setup_routes(app)

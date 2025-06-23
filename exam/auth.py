@@ -19,7 +19,8 @@ from flask_login import (
 )
 
 from exam.config import role_rights
-from exam.user.models import UserCreate
+from exam.user.schemas import UserCreate
+from exam.user.types import RoleName
 
 if TYPE_CHECKING:
     from exam.app import Application
@@ -33,8 +34,10 @@ bp = Blueprint("auth", __name__, url_prefix="/auth")
 def setup_login_manager(app: "Application"):
     login_manager = LoginManager()
     login_manager.login_view = "auth.login"
-    login_manager.login_message = "Для доступа к данной странице необходимо "
-    "пройти процедуру аутентификации."
+    login_manager.login_message = (
+        "Для доступа к данной странице необходимо "
+        "пройти процедуру аутентификации."
+    )
     login_manager.login_message_category = "warning"
     login_manager.user_loader(
         lambda user_id: app.store.user.get_user_by_id(user_id=user_id)
@@ -48,8 +51,7 @@ def check_rights(  # noqa: C901
     def has_rights() -> bool:
         if not current_user.is_authenticated:
             return False
-
-        user_rights = role_rights.get(current_user.role, [])
+        user_rights = role_rights.get(RoleName(current_user.role.name), [])
 
         target_user_id = user_id
         if (
@@ -81,8 +83,10 @@ def check_rights(  # noqa: C901
         def wrapper(*args, **kwargs):
             if not current_user.is_authenticated:
                 flash(
-                    "Для доступа к данной странице необходимо "
-                    "пройти процедуру аутентификации",
+                    (
+                        "Для доступа к данной странице необходимо "
+                        "пройти процедуру аутентификации"
+                    ),
                     "warning",
                 )
                 next_url = request.script_root + request.path
@@ -90,10 +94,10 @@ def check_rights(  # noqa: C901
 
             if not has_rights():
                 flash(
-                    "У вас недостаточно прав доступа.",
+                    "У вас недостаточно прав для выполнения данного действия",
                     "warning",
                 )
-                return redirect(url_for("index"))
+                return redirect(url_for("animal.index"))
             return func(*args, **kwargs)
 
         return wrapper
@@ -142,7 +146,7 @@ def register():
         last_name = request.form.get("last_name")
         middle_name = request.form.get("middle_name")
         role_id = current_app.store.user.get_role_by_name(
-            role_name="пользователь"
+            role_name=RoleName.USER
         ).id
 
         if not all([login, password, confirm_password, first_name, last_name]):

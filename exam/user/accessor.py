@@ -1,10 +1,11 @@
 from dataclasses import asdict
-from typing import Literal
 
 from sqlalchemy import select
 
 from exam.base.base_accessor import BaseAccessor
-from exam.user.models import Role, User, UserCreate
+from exam.user.models import Role, User
+from exam.user.schemas import UserCreate
+from exam.user.types import RoleName
 
 
 class UserAccessor(BaseAccessor):
@@ -33,7 +34,7 @@ class UserAccessor(BaseAccessor):
     def get_role_by_name(
         self,
         *,
-        role_name: Literal["администратор", "модератор", "пользователь"],
+        role_name: RoleName,
     ) -> Role | None:
         query = select(Role).where(Role.name == role_name)
         res = self.session.execute(query)

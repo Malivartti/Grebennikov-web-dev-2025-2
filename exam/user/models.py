@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-
 from flask_login import UserMixin
 from sqlalchemy import TEXT, VARCHAR, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -33,14 +31,10 @@ class User(Base, UserMixin):
     def check_password(self, password):
         return check_password_hash(self.hashed_password, password)
 
+    @property
+    def full_name(self):
+        return " ".join(
+            [self.last_name, self.first_name, self.middle_name or ""]
+        )
+
     role: Mapped["Role"] = relationship("Role")
-
-
-@dataclass
-class UserCreate:
-    login: str
-    password: str
-    last_name: str
-    first_name: str
-    middle_name: str | None
-    role_id: int

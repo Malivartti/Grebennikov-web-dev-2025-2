@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% from 'animals/macros/animal_filter.html' import animal_filter with context %}
+{% from 'animals/macros/animal_card.html' import animal_card with context %}
+{% from 'animals/macros/delete_modal.html' import delete_modal with context %}
+{% from 'macros/pagination.html' import pagination with context %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Наши питомцы</h1>
+            {% if check_rights([Right.ANIMAL_CREATE]) %}
+            <a href="{{ url_for('animal.create') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Добавить животное
+            </a>
+            {% endif %}
+        </div>
+
+        {{ animal_filter(search, sexes, selected_sex, statuses, selected_status) }}
+
+        {% if animals %}
+        <div class="mb-3">
+            <small class="text-muted">
+                Найдено {{ total_count }} животных
+            </small>
+        </div>
+
+        <div class="row">
+            {% for animal in animals %}
+            {{ animal_card(animal) }}
+            {% if check_rights([Right.ANIMAL_DELETE]) %}
+            {{ delete_modal(animal) }}
+            {% endif %}
+            {% endfor %}
+        </div>
+
+        {{ pagination(page, per_page, total_count, 'animal.index') }}
+        {% else %}
+        <div class="text-center py-5">
+            <h3 class="text-muted">Животные не найдены</h3>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

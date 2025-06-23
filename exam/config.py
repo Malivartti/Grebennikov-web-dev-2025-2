@@ -2,7 +2,10 @@ import os
 
 from dotenv import load_dotenv
 
-load_dotenv("./.env", override=True)
+from exam.user.types import Right, RoleName
+
+dotenv_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), ".env")
+load_dotenv(dotenv_path, override=True)
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 
@@ -17,13 +20,28 @@ SQLALCHEMY_DATABASE_URI = (
 )
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-REMEMBER_COOKIE_PATH = "/"  # TODO change to /exam before deploy
-SESSION_COOKIE_PATH = "/"  # TODO
+REMEMBER_COOKIE_PATH = "/exam"
+SESSION_COOKIE_PATH = "/exam"
 SESSION_COOKIE_NAME = "exam_session"
 
+UPLOAD_FOLDER = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "static", "uploads"
+)
+
 role_rights = {
-    "администратор": {},
-    "модератор": {},
-    "пользователь": {},
-    None: {},
+    RoleName.ADMIN: {
+        Right.ANIMAL_VIEW,
+        Right.ANIMAL_CREATE,
+        Right.ANIMAL_UPDATE,
+        Right.ANIMAL_DELETE,
+        Right.ADOPTION_MANAGE,
+    },
+    RoleName.MODER: {
+        Right.ANIMAL_VIEW,
+        Right.ANIMAL_CREATE,
+        Right.ANIMAL_UPDATE,
+        Right.ADOPTION_MANAGE,
+    },
+    RoleName.USER: {Right.ANIMAL_VIEW, Right.ADOPTION_CREATE},
+    RoleName.GUEST: {Right.ANIMAL_VIEW},
 }
