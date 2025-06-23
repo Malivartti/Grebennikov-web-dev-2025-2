@@ -1,4 +1,4 @@
-from enum import StrEnum, auto
+from enum import StrEnum
 
 
 class RoleName(StrEnum):
@@ -9,9 +9,9 @@ class RoleName(StrEnum):
 
 
 class Right(StrEnum):
-    ANIMAL_VIEW = auto()
-    ANIMAL_CREATE = auto()
-    ANIMAL_UPDATE = auto()
-    ANIMAL_DELETE = auto()
-    ADOPTION_CREATE = auto()
-    ADOPTION_MANAGE = auto()
+    ANIMAL_VIEW = "animal_view"
+    ANIMAL_CREATE = "animal_create"
+    ANIMAL_UPDATE = "animal_update"
+    ANIMAL_DELETE = "animal_delete"
+    ADOPTION_CREATE = "adoption_create"
+    ADOPTION_MANAGE = "adoption_manage"

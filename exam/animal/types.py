@@ -1,18 +1,18 @@
-from enum import StrEnum, auto
+from enum import StrEnum
 
 
 class Sex(StrEnum):
-    MALE = auto()
-    FEMALE = auto()
+    MALE = "male"
+    FEMALE = "female"
 
 
 sex_label: dict[Sex, str] = {Sex.MALE: "Мужской", Sex.FEMALE: "Женский"}
 
 
 class AnimalStatus(StrEnum):
-    AVAILABLE = auto()
-    ADOPTION = auto()
-    ADOPTED = auto()
+    AVAILABLE = "available"
+    ADOPTION = "adoption"
+    ADOPTED = "adopted"
 
 
 animal_status_label: dict[AnimalStatus, str] = {

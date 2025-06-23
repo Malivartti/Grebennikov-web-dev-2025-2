@@ -1,11 +1,11 @@
-from enum import StrEnum, auto
+from enum import StrEnum
 
 
 class AdoptionStatus(StrEnum):
-    PENDING = auto()
-    ACCEPTED = auto()
-    REJECTED = auto()
-    REJECTED_ADOPTED = auto()
+    PENDING = "pending"
+    ACCEPTED = "accepted"
+    REJECTED = "rejected"
+    REJECTED_ADOPTED = "rejected_adopted"
 
 
 adoption_status_label: dict[AdoptionStatus, str] = {
