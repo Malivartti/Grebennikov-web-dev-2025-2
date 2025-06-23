@@ -30,7 +30,7 @@
                 <div class="carousel-item {% if loop.first %}active{% endif %}">
                     <img src="{{ url_for('static', filename='uploads/' + image.filename) }}"
                         class="d-block w-100 rounded" alt="{{ animal.breed }}"
-                        style="height: 400px; object-fit: cover;">
+                        style="height: 400px; object-fit: contain;">
                 </div>
                 {% endfor %}
             </div>
